@@ -38,8 +38,8 @@ export class AppComponent implements OnInit {
   selectedFile:string
   url;
   binaryFile;
-  username:string="Veda.RAMAIAH";
-  password:string="Thales01*"
+  username:string="****";
+  password:string="****"
   model: any = {};
   @ViewChild('myInput')
   myInputVariable: ElementRef;
