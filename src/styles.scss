@@ -1,0 +1,40 @@
+/* You can add global styles to this file, and also import other style files */
+// @import 'node_modules/bulma/bulma';
+@import '~bootstrap/dist/css/bootstrap.min.css';
+
+body {
+    // position: fixed;
+    // top: 0;
+    // left: 0;
+    // width: 500px;
+    min-height: 100%;
+    width :100%;
+    // background:gray;
+    background: linear-gradient(to bottom right , #669999 0%, #336699 100%) fixed;
+    //  background: linear-gradient(to bottom right , #91A8A8 0%, #02070B 100%) fixed;
+    //  background: linear-gradient(to bottom right , #91A8A8 0%, #304655 100%) fixed;
+    //  background: linear-gradient(to bottom right , #485555 0%, #075990 100%) fixed;
+    background-size: cover;
+    color: white;
+    font-family: "Roboto","Helvetica Neue","sans-serif"; 
+    font-weight: normal;
+    font-style: normal;
+    font-stretch: normal;
+    letter-spacing: normal;
+}
+
+.form-group.required .control-label:after { 
+    // color: #d00;
+    content: "*";
+    font-family: 'FontAwesome';
+    font-weight: normal;
+}
+
+
+
+// .content { 
+//     color: white;
+//     h1,h2,h3,h4,h5 {
+//         color: white;
+//     }
+// }
