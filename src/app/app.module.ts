@@ -22,7 +22,7 @@ import { PositioningService } from 'ngx-bootstrap/positioning/positioning.servic
     FormsModule,
     HttpClientModule,
     ReactiveFormsModule,// <-- here
-    RoundProgressModule,
+    RoundProgressModule
     // BrowserAnimationsModule // <-- and here
   ],
   providers: [UploadFileService,BsModalService,ComponentLoaderFactory,PositioningService],

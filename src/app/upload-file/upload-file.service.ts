@@ -9,7 +9,7 @@ export class UploadFileService {
   public uploadFile(file:string, username: string, password: string,artifact:string,version:string,binaryFile:File):Observable<HttpEvent<any>>{
     let headers = new HttpHeaders();
     headers=headers.append("Authorization", "Basic " + btoa(`${username}:${password}`));
-    const req = new HttpRequest('PUT', 'http://use08nexus01p:8081/nexus/content/repositories/*'+artifact+'/'+version+'/'+file,binaryFile,{headers:headers,reportProgress: true,responseType:'text'});
+    const req = new HttpRequest('PUT', 'http://use08nexus01p:8081/nexus/content/repositories/test/'+artifact+'/'+version+'/'+file,binaryFile,{headers:headers,reportProgress: true,responseType:'text'});
     return this.http.request((req));   
   }
 }

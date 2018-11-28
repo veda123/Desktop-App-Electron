@@ -1,13 +1,10 @@
 import { Component, OnInit, ElementRef, TemplateRef } from '@angular/core';
-import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/observable/interval';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/takeWhile';
 import 'rxjs/add/operator/do';
 import { HttpClient, HttpEvent, HttpEventType } from '@angular/common/http';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
-// import { trigger, transition, useAnimation } from '@angular/animations';
-// import { fadeIn,slideInLeft, jackInTheBox,fadeInLeft} from 'ng-animate';
 import { UploadFileService } from './upload-file/upload-file.service';
 import { ViewChild } from '@angular/core';
 import { BsModalService } from 'ngx-bootstrap/modal';
@@ -16,30 +13,21 @@ import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss'],
-  // animations: [
-  //   trigger('fadeIn', [transition('* => *', useAnimation(fadeIn))]),
-  //   trigger('fadeInLeft', [transition('* => *', useAnimation(fadeInLeft))]),
-  //   trigger('slideInLeft', [transition('* => *', useAnimation(slideInLeft))]),
-  //   trigger('jackInTheBox', [transition('* => *', useAnimation(jackInTheBox))])
-  // ],
+  styleUrls: ['./app.component.scss']
 })
 
 export class AppComponent implements OnInit {
-  title:string="Artifact Upload";
-  fadeIn: any;
-  fadeInLeft : any;
-  slideInLeft : any;
-  jackInTheBox:any;
-  versionPattern:string = "[1-9]{1}[0-9]{0,1}[.][0-9]{1,2}[.][0-9]{1,2}[.][0-9]+";
+  title:string="Artifact Upload To Nexus";
+  versionPattern:string = "[1-9]{1}[0-9]{0,1}[.][0-9]{1,2}[.][0-9]{1,2}[.][0-9A-Za-z]+";
   artifactPattern:string = "[a-zA-Z]+[a-zA-Z0-9\\-]*";
-  partNumberPattern:string="[0-9]+"
+  partNumberPattern:string="[A-Za-z]*[0-9]+";
   equipType:any;
+  loginCredentials:any;
   selectedFile:string
   url;
   binaryFile;
-  username:string="****";
-  password:string="****"
+  username:string;
+  password:string;
   model: any = {};
   @ViewChild('myInput')
   myInputVariable: ElementRef;
@@ -47,13 +35,16 @@ export class AppComponent implements OnInit {
   invalid:boolean=false;
   progress = { loaded : 0 , total : 0 };
   modalRef: BsModalRef;
+  invalidFile:boolean = false;
+  modalHeader:string = "Upload Status";
+  modalBodyMessage:string = "Uploaded Successfully to Nexus!!!"
 
   nexusForm  = new FormGroup({
-    unit        : new FormControl('',[Validators.required,Validators.pattern(this.artifactPattern)]),
-    bench       : new FormControl('',[Validators.required,Validators.pattern(this.artifactPattern)]),
-    type        : new FormControl('',Validators.required),
-    version     : new FormControl('',[Validators.required,Validators.pattern(this.versionPattern)]),
-    partNumber  : new FormControl('',[Validators.required,Validators.pattern(this.partNumberPattern)]),
+    unit              : new FormControl('',[Validators.required,Validators.pattern(this.artifactPattern)]),
+    bench             : new FormControl('',[Validators.required,Validators.pattern(this.artifactPattern)]),
+    type              : new FormControl('',Validators.required),
+    version           : new FormControl('',[Validators.required,Validators.pattern(this.versionPattern)]),
+    partNumber        : new FormControl('',[Validators.required,Validators.pattern(this.partNumberPattern)]),
     tpsFileDetails    : new FormControl('',Validators.required)
   });
   errors: any;
@@ -62,14 +53,19 @@ export class AppComponent implements OnInit {
   }
 
   process(equipment,template: TemplateRef<any>){
-    console.log("console");
-    let artifact = (equipment.unit+"_"+equipment.bench+"_"+equipment.type).toUpperCase();
-    // artifact = artifact.toUpperCase();
-    let tpsFile = "ED"+equipment.partNumber+"_"+equipment.version+".zip";
-    this.modalRef = this.modalService.show(template);
-    this.uploadService.uploadFile(tpsFile,this.username,this.password,artifact,equipment.version,this.binaryFile)
+    this.invalidFile = false;
+    let fileExt = this.selectedFile.substr(this.selectedFile.lastIndexOf("."));
+    //allow only zip files to be uploaded
+    if(fileExt != ".zip"){
+      this.invalidFile = true;
+    }
+    else{
+      let artifact = (equipment.unit+"_"+equipment.bench+"_"+equipment.type).toUpperCase();  // artifact :(unit_bench_softwareType)
+      let tpsFile = (equipment.partNumber).toUpperCase()+"_"+equipment.version+".zip";  // file name : partnumber_version
+      this.modalRef = this.modalService.show(template,{backdrop: 'static', keyboard: false}); //opens the modal,  background not clickable 
+      //invokes the service call to upload the file 
+      this.uploadService.uploadFile(tpsFile,this.username,this.password,artifact,equipment.version,this.binaryFile)
         .subscribe((event: HttpEvent<any>)=>{
-          // console.log("fileUpload",fileUpload);
          this.success = false;
           switch (event.type) {
             case HttpEventType.Sent:
@@ -79,21 +75,17 @@ export class AppComponent implements OnInit {
               console.log('Response header received!');
               break;
             case HttpEventType.UploadProgress:
-            console.log("upload",this.success);
-               this.progress.loaded = Math.round(100* event.loaded / event.total);
-               this.progress.total = event.total;
+              this.progress.loaded = Math.round(100*event.loaded / event.total);
               console.log(`Upload in progress! ${ this.progress.loaded }Kb loaded`);
               break;
             case HttpEventType.Response:
               console.log('😺 Done!', event.body);
-              this.reset();
-              this.success= true; 
-              this.modalRef.hide();         
-          }
+              this.success= true;     
+           }
         },error => {
           this.errors = error;
-          this.invalid = true;
-          console.log("error",error)});
+          this.invalid = true});
+    }
   }
 
   onFileSelected(event){
@@ -105,11 +97,19 @@ export class AppComponent implements OnInit {
     }
   }
 
+  //initalises all the fields 
   reset():void{
     this.nexusForm.reset();
     this.myInputVariable.nativeElement.value="";
     this.nexusForm.get('type').setValue("");
     this.success= false;
+    this.invalid = false;
+    this.invalidFile = false;
+  }
+
+  closeModal():void{
+    this.modalRef.hide(); //closes the modal
+    this.reset();
   }
 
   get unit()
@@ -139,12 +139,21 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit(){
-    let apiUrl ="./assets/data/values.json";
+    //loads config files which has credentials and software types values
+    let apiUrl ="./assets/data/Software-Types.json";
+    let credentials = "./assets/data/credentials.json";
+
+    //reads software-type values from json file and stores into a local object
     this.http.get(apiUrl).subscribe(data=>{ 
       this.equipType = data;
-      console.log("data",this.equipType);
-    })
+    });
+
+    //reads login credentials from json file ans stores into a local object
+    this.http.get(credentials).subscribe(data=>{ 
+      this.loginCredentials = data;
+      this.username = this.loginCredentials[0].username;
+      this.password = this.loginCredentials[0].password;
+    });
 
   }
-
 }
