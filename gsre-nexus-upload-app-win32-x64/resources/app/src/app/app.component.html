@@ -1,0 +1,106 @@
+<div class ="overlay">
+    <header>
+        <div class="title">{{title}}</div>
+    </header>
+    <form [formGroup]="nexusForm" (ngSubmit)="process(nexusForm.value,template)" novalidate> 
+        <div *ngIf ="invalidFile" class="col-sm-10 alert alert-danger">Invalid File!!! Only .zip Files Are Allowed </div> 
+            <div class="form-group row" >
+                <label class="control-label col-sm-2 col-form-label text" for="unit">LRU/SRU</label>
+                <div class="col-sm-5">
+                    <input formControlName="unit" id="unit" type="text" class="form-control" placeholder="LRU/SRU Name"
+                        [ngClass]="{'has-error': unit.touched && unit.invalid}">
+                </div>
+                <div class="col-sm-3">
+                    <div *ngIf="unit.touched && unit.invalid" class="display-error text">
+                        <div *ngIf="unit.errors.required">LRU/SRU Name is required</div>
+                        <div *ngIf="unit.errors.pattern">Invalid LRU/SRU</div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="control-label col-sm-2 col-form-label text" for="bench">TEST SET</label>
+                <div class="col-sm-5">
+                    <input formControlName="bench" id="bench" type="text" class="form-control" placeholder="Test Set/Test Bench"
+                        [ngClass]="{'has-error': bench.touched && bench.invalid}">
+                </div>
+                <div class="col-sm-3">
+                    <div *ngIf="bench.touched && bench.invalid" class="display-error text">
+                        <div *ngIf="bench.errors.required">Test Set is required</div>
+                        <div *ngIf="bench.errors.pattern">Invalid Test Set</div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="control-label col-sm-2 col-form-label text" for="type"> SOFTWARE TYPE </label>
+                <div class="col-sm-5">
+                    <select  formControlName="type" id="type" class="form-control" [ngClass]="{'has-error': type.touched && type.invalid }">
+                        <option value="" disabled>Select Software Type</option>
+                        <option *ngFor="let type of equipType" [ngValue]="type">{{type}}</option>
+                    </select>
+                </div>
+                <div class="col-sm-3">
+                    <div *ngIf="type.touched && type.invalid" class="display-error">
+                        <div *ngIf="type.errors.required">Software Type is required</div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row" >
+                <label class="control-label col-sm-2 col-form-label" for="version">VERSION</label>
+                <div class="col-sm-5">
+                    <input formControlName="version" id="version" type="text" class="form-control" placeholder="Version"
+                        [ngClass]="{'has-error': version.touched && version.invalid}">
+                </div>
+                <div class="col-sm-3">
+                    <div *ngIf="version.touched && version.invalid" class="display-error text">
+                        <div *ngIf="version.errors.required">Version is required</div>
+                        <div *ngIf="version.errors.pattern">Invalid Version</div> 
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row" >
+                <label class="control-label col-sm-2 col-form-label " for="partNumber">TPS PARTNUMBER</label>
+                <div class="col-sm-5">
+                    <input formControlName="partNumber" id="partNumber" type="text" class="form-control" placeholder="PartNumber"
+                        [ngClass]="{'has-error': partNumber.touched && partNumber.invalid}">
+                </div>
+                <div class="col-sm-3">
+                    <div *ngIf="partNumber.touched && partNumber.invalid" class="display-error">
+                        <div *ngIf="partNumber.errors.required">PartNumber is required</div>
+                        <div *ngIf="partNumber.errors.pattern">Invalid tps PartNumber</div> 
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row" >
+                <label class="control-label col-sm-2 col-form-label" for="tpsFileDetails">TPS FILE</label>
+                <div class="col-sm-5">
+                    <input #myInput type="file" class="form-control" accept=".zip" (change)="onFileSelected($event)">
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="row justify-content-center align-items-center col-sm-8"> 
+                    <button type="submit" class="btn btn-md btn-info" [disabled]="!nexusForm.valid">
+                        <span class="fa fa-save"></span>&nbsp;&nbsp;UPLOAD</button>
+                    <button type="button" class="btn btn-danger btn-md cancelButton" (click)="reset()"><span class="fa fa-times-circle"></span>&nbsp;&nbsp;CANCEL</button> 
+                </div>
+            </div>
+            <div *ngIf ="invalid" class="alert alert-danger">Error! Something went wrong </div> 
+    </form>
+
+   <ng-template #template>
+        <div class="modal-header">
+          <h4 class="modal-title pull-left">{{modalHeader}}</h4>
+        </div>
+        <div class="modal-body">
+            <div *ngIf="progress.loaded !== 100">
+                <div class="progress">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar"
+                        aria-valuemin="0" aria-valuemax="100" [style.width]="progress.loaded + '%'">{{progress.loaded}}%</div>
+                </div>
+            </div>
+            <div *ngIf="progress.loaded === 100">{{modalBodyMessage}}</div>
+        </div>
+        <div *ngIf="progress.loaded === 100" class="modal-footer">
+            <button type="button" class="btn btn-danger" (click)="closeModal()">Close</button>
+        </div>
+    </ng-template>
+</div>

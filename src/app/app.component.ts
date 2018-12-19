@@ -37,7 +37,7 @@ export class AppComponent implements OnInit {
   modalRef: BsModalRef;
   invalidFile:boolean = false;
   modalHeader:string = "Upload Status";
-  modalBodyMessage:string = "Uploaded Successfully to Nexus!!!"
+  modalBodyMessage:string = "Uploaded Successfully to Nexus!!!";
 
   nexusForm  = new FormGroup({
     unit              : new FormControl('',[Validators.required,Validators.pattern(this.artifactPattern)]),
@@ -58,6 +58,7 @@ export class AppComponent implements OnInit {
     //allow only zip files to be uploaded
     if(fileExt != ".zip"){
       this.invalidFile = true;
+
     }
     else{
       let artifact = (equipment.unit+"_"+equipment.bench+"_"+equipment.type).toUpperCase();  // artifact :(unit_bench_softwareType)
@@ -72,7 +73,7 @@ export class AppComponent implements OnInit {
               console.log('Request sent!');
               break;
             case HttpEventType.ResponseHeader:
-              console.log('Response header received!');
+              console.log('Response header received!'); 
               break;
             case HttpEventType.UploadProgress:
               this.progress.loaded = Math.round(100*event.loaded / event.total);
